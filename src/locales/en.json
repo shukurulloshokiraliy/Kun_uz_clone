@@ -1,3 +1,12 @@
 {
-    "tashkent": "Tashkent"
-}
+    "tashkent": "Tashkent",
+    "menu": {
+      "uzbekistan": "Uzbekistan",
+      "world": "World",
+      "economy": "Economy",
+      "society": "Society",
+      "sport": "Sport",
+      "technology": "Technology",
+      "audio": "Audio"
+    }
+  }

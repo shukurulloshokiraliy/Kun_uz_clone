@@ -1,11 +1,18 @@
-import React from 'react'
+import { Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+
 
 const App = () => {
   return (
-    <div className='bg-amber-300'>
-      app
-    </div>
-  )
-}
+  
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
+      </Routes>
+  
+  );
+};
 
-export default App
+export default App;

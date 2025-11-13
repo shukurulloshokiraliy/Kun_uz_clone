@@ -1,3 +1,12 @@
 {
-    "tashkent": "Toshkent"
-}
+    "tashkent": "Toshkent",
+    "menu": {
+      "uzbekistan": "O'zbekiston",
+      "world": "Jahon",
+      "economy": "Iqtisodiyot",
+      "society": "Jamiyat",
+      "sport": "Sport",
+      "technology": "Texnologiya",
+      "audio": "Audio"
+    }
+  }
