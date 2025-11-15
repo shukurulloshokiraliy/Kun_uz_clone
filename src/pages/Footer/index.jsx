@@ -12,6 +12,7 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
+    //Footer
     <footer className="bg-gray-50 py-8 border-t border-gray-200">
       <div className="container">
   
