@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('https://dummyjson.com/posts?limit=50')
@@ -13,6 +17,10 @@ const HomePage = () => {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const handlePostClick = (postId) => {
+    navigate(`/detail/${postId}`);
+  };
 
   if (loading) {
     return (
@@ -52,7 +60,10 @@ const HomePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
         <div className="lg:col-span-4 space-y-6">
           {mainPost && (
-            <article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <article 
+              onClick={() => handlePostClick(mainPost.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            >
               <img
                 src={getImageUrl(mainPost, 600, 400)}
                 alt={mainPost.title}
@@ -64,7 +75,7 @@ const HomePage = () => {
                   <span>|</span>
                   <span>{getPostDate(mainPost)}</span>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors mb-3 leading-tight">
+                <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors mb-3 leading-tight">
                   {mainPost.title}
                 </h2>
                 <p className="text-sm text-gray-600 leading-relaxed">{mainPost.body}</p>
@@ -73,7 +84,11 @@ const HomePage = () => {
           )}
 
           {leftColumnPosts.map((post, index) => (
-            <article key={post.id} className="border-b border-gray-200 pb-5">
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="border-b border-gray-200 pb-5 cursor-pointer"
+            >
               {index === 0 && (
                 <div className="mb-3">
                   <img
@@ -86,7 +101,7 @@ const HomePage = () => {
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                 <div className="flex-1">
-                  <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors mb-2 leading-snug">
+                  <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-snug">
                     {post.title}
                   </h3>
                   <p className="text-xs text-gray-500">
@@ -100,14 +115,18 @@ const HomePage = () => {
 
         <div className="lg:col-span-4 space-y-5">
           {posts.slice(7, 13).map((post, index) => (
-            <article key={post.id} className="flex gap-4 pb-5 border-b border-gray-200">
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="flex gap-4 pb-5 border-b border-gray-200 cursor-pointer"
+            >
               <img
                 src={getImageUrl(post, 150, 100)}
                 alt={post.title}
                 className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
               />
               <div className="flex-1">
-                <h3 className="text-sm font-bold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors mb-2 leading-tight line-clamp-2">
+                <h3 className="text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-tight line-clamp-2">
                   {post.title}
                 </h3>
                 <p className="text-xs text-gray-600 line-clamp-2 mb-2">
@@ -123,13 +142,17 @@ const HomePage = () => {
 
         <div className="lg:col-span-4">
           <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-900">So'nggi yangiliklar</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t('home.latest_news')}</h2>
           </div>
 
           <div className="space-y-4">
             {rightColumnPosts.map((post, index) => (
-              <article key={post.id} className="pb-4 border-b border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors mb-2 leading-snug">
+              <article 
+                key={post.id} 
+                onClick={() => handlePostClick(post.id)}
+                className="pb-4 border-b border-gray-200 cursor-pointer"
+              >
+                <h3 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-snug">
                   {post.title}
                 </h3>
                 <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -164,7 +187,7 @@ const HomePage = () => {
 
       <section className="mb-10">
         <div className="flex items-center gap-2 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Dolzarb xabarlar</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('home.current posts')}</h2>
           <svg className="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
@@ -172,7 +195,11 @@ const HomePage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {dolzarbPosts.map((post) => (
-            <article key={post.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            >
               <img
                 src={getImageUrl(post, 400, 250)}
                 alt={post.title}
@@ -192,7 +219,7 @@ const HomePage = () => {
                     {getPostDate(post)}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors leading-tight line-clamp-3">
+                <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors leading-tight line-clamp-3">
                   {post.title}
                 </h3>
               </div>
@@ -203,12 +230,16 @@ const HomePage = () => {
 
       <section className="mb-10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Maqolalar</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('home.articles')}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {maqolalarPosts.map((post, index) => (
-            <article key={post.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            >
               <div className="relative">
                 <img
                   src={getImageUrl(post, 300, 200)}

@@ -17,5 +17,10 @@
     "copyright": "Copying, distribution, and other forms of use of materials published on the \"KUN.UZ\" website can only be carried out with the written consent of the editorial office. Certificate: №0987. Date issued: June 22, 2015. Founder: \"WEB EXPERT\" LLC.",
     "disclaimer": "The opinions expressed in the author's articles published on the site belong to the authors and may not reflect the editorial position of Kun.uz.",
     "commercial": "Ⓣ — this mark placed on articles and materials indicates that they are published on the basis of commercial and advertising rights."
+  },
+  "home": {
+    "latest_news": "Latest News",
+    "current posts":"Current posts",
+     "articles":"Articles"
   }
 }

@@ -17,5 +17,11 @@
     "copyright": "\"KUN.UZ\" saytda e'lon qilingan materiallardan nusxa ko'chirish, tarqatish va boshqa shakllarda foydalanish faqat tahririyat yozma roziligi bilan amalga oshirilishi mumkin. Guvohnoma: №0987. Berilgan sanasi: 22.06.2015–yil. Muassis: \"WEB EXPERT\" MCHJ.",
     "disclaimer": "Saytda e'lon qilinayotgan mualliflik maqolalarida keltirilgan fikrlar mualliflarga tegishli va ular Kun.uz tahririyati nuqtayi nazarini ifoda etmasligi mumkin.",
     "commercial": "Ⓣ — maqola va materiallarda qo'yilgan mazkur belgi ularning tijorat va reklama huquqlari asosida e'lon qilinganligini bildiradi."
+  },
+  "home": {
+    "latest_news": "So'nggi yangiliklar",
+    "current posts":"Dolzarb xabarlar",
+    "articles":"Maqolalar"
   }
+
 }
