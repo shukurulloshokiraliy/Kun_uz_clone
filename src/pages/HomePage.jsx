@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import heart from "../assets/images/heart.svg";
+import heart_active from "../assets/images/heart_active.svg";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [likedPosts, setLikedPosts] = useState([]);
   const { t } = useTranslation();
   const navigate = useNavigate();
+
 
   useEffect(() => {
     fetch('https://dummyjson.com/posts?limit=50')
@@ -16,25 +20,48 @@ const HomePage = () => {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+
+    const savedLikes = localStorage.getItem('likedNews');
+    if (savedLikes) {
+      setLikedPosts(JSON.parse(savedLikes));
+    }
   }, []);
+
+
+  const isLiked = (postId) => {
+    return likedPosts.some(item => item.id === postId);
+  };
+
+
+  const toggleLike = (e, post) => {
+    e.stopPropagation(); 
+    
+    let updatedLikes;
+    
+    if (isLiked(post.id)) {
+  
+      updatedLikes = likedPosts.filter(item => item.id !== post.id);
+    } else {
+    
+      const newsData = {
+        id: post.id,
+        title: post.title,
+        body: post.body,
+        image: getImageUrl(post),
+        category: getCategory(post, 0),
+        date: getPostDate(post)
+      };
+      updatedLikes = [...likedPosts, newsData];
+    }
+    
+    setLikedPosts(updatedLikes);
+    localStorage.setItem('likedNews', JSON.stringify(updatedLikes));
+  };
 
   const handlePostClick = (postId) => {
     navigate(`/detail/${postId}`);
   };
-
-  if (loading) {
-    return (
-      <div className="container py-8">
-        <div className="text-center">Yuklanmoqda...</div>
-      </div>
-    );
-  }
-
-  const mainPost = posts[0];
-  const leftColumnPosts = posts.slice(1, 7);
-  const rightColumnPosts = posts.slice(7, 20);
-  const dolzarbPosts = posts.slice(20, 24);
-  const maqolalarPosts = posts.slice(24, 32);
 
   const getImageUrl = (post, width = 600, height = 400) => {
     if (post.image) return post.image;
@@ -55,20 +82,46 @@ const HomePage = () => {
     return categories[index % categories.length];
   };
 
+  if (loading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">Yuklanmoqda...</div>
+      </div>
+    );
+  }
+
+  const mainPost = posts[0];
+  const leftColumnPosts = posts.slice(1, 7);
+  const rightColumnPosts = posts.slice(7, 20);
+  const dolzarbPosts = posts.slice(20, 24);
+  const maqolalarPosts = posts.slice(24, 32);
+
   return (
     <div className="container py-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+        {/* Left Column */}
         <div className="lg:col-span-4 space-y-6">
           {mainPost && (
             <article 
               onClick={() => handlePostClick(mainPost.id)}
-              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"
             >
               <img
                 src={getImageUrl(mainPost, 600, 400)}
                 alt={mainPost.title}
                 className="w-full h-64 object-cover"
               />
+              {/* Heart Button */}
+              <button
+                onClick={(e) => toggleLike(e, mainPost)}
+                className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+              >
+                <img 
+                  src={isLiked(mainPost.id) ? heart_active : heart} 
+                  alt="like" 
+                  className="w-6 h-6"
+                />
+              </button>
               <div className="p-5">
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
                   <span className="text-blue-600 font-semibold">{getCategory(mainPost, 0)}</span>
@@ -87,15 +140,26 @@ const HomePage = () => {
             <article 
               key={post.id} 
               onClick={() => handlePostClick(post.id)}
-              className="border-b border-gray-200 pb-5 cursor-pointer"
+              className="border-b border-gray-200 pb-5 cursor-pointer relative"
             >
               {index === 0 && (
-                <div className="mb-3">
+                <div className="mb-3 relative">
                   <img
                     src={getImageUrl(post, 400, 250)}
                     alt={post.title}
                     className="w-full h-48 object-cover rounded-lg"
                   />
+               
+                  <button
+                    onClick={(e) => toggleLike(e, post)}
+                    className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+                  >
+                    <img 
+                      src={isLiked(post.id) ? heart_active : heart} 
+                      alt="like" 
+                      className="w-5 h-5"
+                    />
+                  </button>
                 </div>
               )}
               <div className="flex items-start gap-3">
@@ -108,11 +172,25 @@ const HomePage = () => {
                     {getCategory(post, index)} | {getPostDate(post)}
                   </p>
                 </div>
+      
+                {index !== 0 && (
+                  <button
+                    onClick={(e) => toggleLike(e, post)}
+                    className="p-1 hover:scale-110 transition-transform"
+                  >
+                    <img 
+                      src={isLiked(post.id) ? heart_active : heart} 
+                      alt="like" 
+                      className="w-5 h-5"
+                    />
+                  </button>
+                )}
               </div>
             </article>
           ))}
         </div>
 
+     
         <div className="lg:col-span-4 space-y-5">
           {posts.slice(7, 13).map((post, index) => (
             <article 
@@ -136,9 +214,21 @@ const HomePage = () => {
                   {getCategory(post, index)} | {getPostDate(post)}
                 </p>
               </div>
+           
+              <button
+                onClick={(e) => toggleLike(e, post)}
+                className="p-1 hover:scale-110 transition-transform self-start"
+              >
+                <img 
+                  src={isLiked(post.id) ? heart_active : heart} 
+                  alt="like" 
+                  className="w-5 h-5"
+                />
+              </button>
             </article>
           ))}
         </div>
+
 
         <div className="lg:col-span-4">
           <div className="mb-4">
@@ -150,41 +240,55 @@ const HomePage = () => {
               <article 
                 key={post.id} 
                 onClick={() => handlePostClick(post.id)}
-                className="pb-4 border-b border-gray-200 cursor-pointer"
+                className="pb-4 border-b border-gray-200 cursor-pointer flex items-start gap-2"
               >
-                <h3 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-snug">
-                  {post.title}
-                </h3>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  {index % 3 === 0 && (
-                    <span className="flex items-center gap-1 text-blue-600 font-medium">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-                      </svg>
-                      {getCategory(post, index)}
-                    </span>
-                  )}
-                  {index % 3 === 1 && (
-                    <span className="flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-                        />
-                      </svg>
-                      {getCategory(post, index)}
-                    </span>
-                  )}
-                  <span className="ml-auto">{getPostDate(post)}</span>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-snug">
+                    {post.title}
+                  </h3>
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    {index % 3 === 0 && (
+                      <span className="flex items-center gap-1 text-blue-600 font-medium">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                        </svg>
+                        {getCategory(post, index)}
+                      </span>
+                    )}
+                    {index % 3 === 1 && (
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                          />
+                        </svg>
+                        {getCategory(post, index)}
+                      </span>
+                    )}
+                    <span className="ml-auto">{getPostDate(post)}</span>
+                  </div>
                 </div>
+                {/* Heart Button */}
+                <button
+                  onClick={(e) => toggleLike(e, post)}
+                  className="p-1 hover:scale-110 transition-transform"
+                >
+                  <img 
+                    src={isLiked(post.id) ? heart_active : heart} 
+                    alt="like" 
+                    className="w-5 h-5"
+                  />
+                </button>
               </article>
             ))}
           </div>
         </div>
       </div>
 
+ 
       <section className="mb-10">
         <div className="flex items-center gap-2 mb-6">
           <h2 className="text-2xl font-bold text-gray-900">{t('home.current posts')}</h2>
@@ -198,13 +302,24 @@ const HomePage = () => {
             <article 
               key={post.id} 
               onClick={() => handlePostClick(post.id)}
-              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"
             >
               <img
                 src={getImageUrl(post, 400, 250)}
                 alt={post.title}
                 className="w-full h-48 object-cover"
               />
+              {/* Heart Button */}
+              <button
+                onClick={(e) => toggleLike(e, post)}
+                className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+              >
+                <img 
+                  src={isLiked(post.id) ? heart_active : heart} 
+                  alt="like" 
+                  className="w-5 h-5"
+                />
+              </button>
               <div className="p-4">
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
                   <span className="flex items-center gap-1">
@@ -228,6 +343,7 @@ const HomePage = () => {
         </div>
       </section>
 
+
       <section className="mb-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">{t('home.articles')}</h2>
@@ -238,7 +354,7 @@ const HomePage = () => {
             <article 
               key={post.id} 
               onClick={() => handlePostClick(post.id)}
-              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"
             >
               <div className="relative">
                 <img
@@ -246,6 +362,17 @@ const HomePage = () => {
                   alt={post.title}
                   className="w-full h-40 object-cover"
                 />
+                {/* Heart Button */}
+                <button
+                  onClick={(e) => toggleLike(e, post)}
+                  className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+                >
+                  <img 
+                    src={isLiked(post.id) ? heart_active : heart} 
+                    alt="like" 
+                    className="w-5 h-5"
+                  />
+                </button>
               </div>
               <div className="p-4">
                 <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors leading-tight mb-3 line-clamp-2">
