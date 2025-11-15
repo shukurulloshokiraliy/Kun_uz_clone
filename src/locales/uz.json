@@ -21,7 +21,15 @@
   "home": {
     "latest_news": "So'nggi yangiliklar",
     "current posts":"Dolzarb xabarlar",
-    "articles":"Maqolalar"
+    "load":"Yuklanmoqda...."
+  },
+  "notfound":{
+    "notweb":"Sahifa topilmadi...",
+    "home" : "  Bosh sahifaga qaytish..."
+  },
+  "like":{
+    "title":"Saralangan yangiliklar",
+    "notfound":"Hozircha saralangan yangiliklar yo'q"
   }
 
 }

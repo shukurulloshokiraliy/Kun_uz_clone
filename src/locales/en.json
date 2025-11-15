@@ -21,6 +21,14 @@
   "home": {
     "latest_news": "Latest News",
     "current posts":"Current posts",
-     "articles":"Articles"
+     "load":"Loading...."
+  },
+  "notfound":{
+    "notweb":"Side is notFound...",
+    "home" : " Back to Home Page..."
+  },
+  "like":{
+    "title":"Sorted News",
+    "notfound":"No sorted news so far"
   }
 }
