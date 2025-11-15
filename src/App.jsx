@@ -3,7 +3,7 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/404_Page';
 import DetailPage from './pages/DetailPage';
-
+import Likes from './pages/Likes';
 const App = () => {
   return (
   
@@ -13,6 +13,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="/detail/:id" element={<DetailPage />} />
+          <Route path="/Likes" element={<Likes />} />
         </Route>
       </Routes>
   

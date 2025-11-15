@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import logo from "../../assets/images/logo-light.svg";
 import reklama from "../../assets/images/reklama.svg";
-
+import { NavLink } from 'react-router-dom';
+import bookmark from "../../assets/images/bookmark.svg";
 const Header = () => {
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,7 +32,7 @@ const Header = () => {
 
   return (
     <header>
-      {/* Reklama Banner */}
+     
       {showReklama && (
         <div className="relative container">
           <img src={reklama} alt="Reklama" className="w-full mb-4" />
@@ -69,6 +70,9 @@ const Header = () => {
                   {item.label}
                 </a>
               ))}
+                <NavLink to="/Likes">
+               <div className='flex gap-2'> <img src={bookmark} alt="KUN.UZ" className="h-6" /> Saralanganlar</div>
+            </NavLink>
             </nav>
 
         
