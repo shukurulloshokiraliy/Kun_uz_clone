@@ -1,29 +1,30 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import uzTranslation from './locales/uz.json';
+import ruTranslation from './locales/ru.json';
+import enTranslation from './locales/en.json';
 
-
-import uzTranslation from "./locales/uz.json";
-import ruTranslation from "./locales/ru.json";
-import enTranslation from "./locales/en.json";
-
-const resources = {
-  uz: { translation: uzTranslation },
-  ru: { translation: ruTranslation },
-  en: { translation: enTranslation },
-};
-
-
-const savedLanguage = localStorage.getItem("language") || "uz";
+// localStorage'dan tilni o'qish
+const savedLanguage = localStorage.getItem('language') || 'uz';
 
 i18n
   .use(initReactI18next)
   .init({
-    resources,
-    lng: savedLanguage,
-    fallbackLng: "uz",
-    interpolation: {
-      escapeValue: false,
+    resources: {
+      uz: { translation: uzTranslation },
+      ru: { translation: ruTranslation },
+      en: { translation: enTranslation }
     },
+    lng: savedLanguage, // localStorage'dan olingan til
+    fallbackLng: 'uz',
+    interpolation: {
+      escapeValue: false
+    }
   });
+
+// Til o'zgarganda localStorage'ga saqlash
+i18n.on('languageChanged', (lng) => {
+  localStorage.setItem('language', lng);
+});
 
 export default i18n;

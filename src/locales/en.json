@@ -1,12 +1,21 @@
 {
-    "tashkent": "Tashkent",
-    "menu": {
-      "uzbekistan": "Uzbekistan",
-      "world": "World",
-      "economy": "Economy",
-      "society": "Society",
-      "sport": "Sport",
-      "technology": "Technology",
-      "audio": "Audio"
-    }
+  "menu": {
+    "uzbekistan": "Uzbekistan",
+    "world": "World",
+    "economy": "Economy",
+    "society": "Society",
+    "sport": "Sport",
+    "technology": "Technology",
+    "audio": "Audio"
+  },
+  "footer": {
+    "about": "About",
+    "rss": "RSS",
+    "contact": "Contact",
+    "advertising": "Advertising",
+    "team": "Kun.uz Team",
+    "copyright": "Copying, distribution, and other forms of use of materials published on the \"KUN.UZ\" website can only be carried out with the written consent of the editorial office. Certificate: №0987. Date issued: June 22, 2015. Founder: \"WEB EXPERT\" LLC.",
+    "disclaimer": "The opinions expressed in the author's articles published on the site belong to the authors and may not reflect the editorial position of Kun.uz.",
+    "commercial": "Ⓣ — this mark placed on articles and materials indicates that they are published on the basis of commercial and advertising rights."
   }
+}

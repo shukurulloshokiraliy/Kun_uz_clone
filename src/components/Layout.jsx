@@ -4,15 +4,15 @@ import Footer from '../pages/Footer/index';
 
 const Layout = () => {
   return (
-    <div className='bg-[rgb(221,221,221)]'>
-<div className="Container w-[1340px] m-auto ">
-<Header />
-      <main>
+   <div className="min-h-screen flex flex-col bg-gray-200">
+      <Header />
+      <main className="flex-grow">
         <Outlet />
       </main>
       <Footer />
-</div>
     </div>
+
+  
   );
 };
 

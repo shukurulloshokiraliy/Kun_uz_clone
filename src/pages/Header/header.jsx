@@ -33,7 +33,7 @@ const Header = () => {
     <header>
       {/* Reklama Banner */}
       {showReklama && (
-        <div className="relative">
+        <div className="relative container">
           <img src={reklama} alt="Reklama" className="w-full mb-4" />
           <button
             onClick={() => setShowReklama(false)}
@@ -48,8 +48,8 @@ const Header = () => {
       )}
 
    
-      <nav className="bg-white border-b border-gray-200 rounded-lg">
-        <div className="mx-auto px-6 h-16" style={{ maxWidth: '1370px' }}>
+      <nav className="bg-white border-b border-gray-200 rounded-lg container">
+        <div className=" px-6 h-16 ">
           <div className="flex items-center justify-between h-full">
     
             <div className="flex items-center">
