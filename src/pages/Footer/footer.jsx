@@ -12,15 +12,15 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    //Footer
-    <footer className="bg-gray-50 py-8 border-t border-gray-200">
+    
+    <footer className="bg-[rgb(255,255,255)] py-8 border-t border-gray-200">
       <div className="container">
   
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-8">
           
        
           <div className="flex-shrink-0">
-            <img src={footer_logo} alt="footer-logo" className="w-24 h-auto" />
+            <img src={footer_logo} alt="footer-logo" className="w-24 h-9" />
           </div>
 
         

@@ -1,0 +1,892 @@
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import heart from "../assets/images/heart.svg";
+import heart_active from "../assets/images/heart_active.svg";
+
+const HomePage = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [likedPosts, setLikedPosts] = useState([]);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    fetch('https://dummyjson.com/posts?limit=50')
+      .then(res => res.json())
+      .then(data => {
+        setPosts(data.posts);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+
+    const savedLikes = localStorage.getItem('likedNews');
+    if (savedLikes) {
+      setLikedPosts(JSON.parse(savedLikes));
+    }
+  }, []);
+
+
+  const isLiked = (postId) => {
+    return likedPosts.some(item => item.id === postId);
+  };
+
+
+  const toggleLike = (e, post) => {
+    e.stopPropagation(); 
+    
+    let updatedLikes;
+    
+    if (isLiked(post.id)) {
+  
+      updatedLikes = likedPosts.filter(item => item.id !== post.id);
+    } else {
+    
+      const newsData = {
+        id: post.id,
+        title: post.title,
+        body: post.body,
+        image: getImageUrl(post),
+        category: getCategory(post, 0),
+        date: getPostDate(post)
+      };
+      updatedLikes = [...likedPosts, newsData];
+    }
+    
+    setLikedPosts(updatedLikes);
+    localStorage.setItem('likedNews', JSON.stringify(updatedLikes));
+  };
+
+  const handlePostClick = (postId) => {
+    navigate(`/detail/${postId}`);
+  };
+
+  const getImageUrl = (post, width = 600, height = 400) => {
+    if (post.image) return post.image;
+    return `https://picsum.photos/${width}/${height}?random=${post.id}`;
+  };
+
+  const getPostDate = (post) => {
+    if (post.date) return post.date;
+    if (post.createdAt) return new Date(post.createdAt).toLocaleDateString('uz-UZ');
+    return `${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60)
+      .toString()
+      .padStart(2, '0')} / 14.11.2025`;
+  };
+
+  const getCategory = (post, index) => {
+    if (post.category) return post.category;
+    const categories = ['Sport', 'Jahon', 'Jamiyat', 'Iqtisod', 'Texnologiya', 'Madaniyat', 'O\'zbekiston', 'Moliya'];
+    return categories[index % categories.length];
+  };
+
+  if (loading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">Yuklanmoqda...</div>
+      </div>
+    );
+  }
+
+  const mainPost = posts[0];
+  const leftColumnPosts = posts.slice(1, 7);
+  const rightColumnPosts = posts.slice(7, 20);
+  const dolzarbPosts = posts.slice(20, 24);
+  const maqolalarPosts = posts.slice(24, 32);
+
+  return (
+    <div className="container py-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+        {/* Left Column */}
+        <div className="lg:col-span-4 space-y-6">
+          {mainPost && (
+            <article 
+              onClick={() => handlePostClick(mainPost.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"
+            >
+              <img
+                src={getImageUrl(mainPost, 600, 400)}
+                alt={mainPost.title}
+                className="w-full h-64 object-cover"
+              />
+              {/* Heart Button */}
+              <button
+                onClick={(e) => toggleLike(e, mainPost)}
+                className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+              >
+                <img 
+                  src={isLiked(mainPost.id) ? heart_active : heart} 
+                  alt="like" 
+                  className="w-6 h-6"
+                />
+              </button>
+              <div className="p-5">
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                  <span className="text-blue-600 font-semibold">{getCategory(mainPost, 0)}</span>
+                  <span>|</span>
+                  <span>{getPostDate(mainPost)}</span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors mb-3 leading-tight">
+                  {mainPost.title}
+                </h2>
+                <p className="text-sm text-gray-600 leading-relaxed">{mainPost.body}</p>
+              </div>
+            </article>
+          )}
+
+          {leftColumnPosts.map((post, index) => (
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="border-b border-gray-200 pb-5 cursor-pointer relative"
+            >
+              {index === 0 && (
+                <div className="mb-3 relative">
+                  <img
+                    src={getImageUrl(post, 400, 250)}
+                    alt={post.title}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+               
+                  <button
+                    onClick={(e) => toggleLike(e, post)}
+                    className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+                  >
+                    <img 
+                      src={isLiked(post.id) ? heart_active : heart} 
+                      alt="like" 
+                      className="w-5 h-5"
+                    />
+                  </button>
+                </div>
+              )}
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-snug">
+                    {post.title}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {getCategory(post, index)} | {getPostDate(post)}
+                  </p>
+                </div>
+      
+                {index !== 0 && (
+                  <button
+                    onClick={(e) => toggleLike(e, post)}
+                    className="p-1 hover:scale-110 transition-transform"
+                  >
+                    <img 
+                      src={isLiked(post.id) ? heart_active : heart} 
+                      alt="like" 
+                      className="w-5 h-5"
+                    />
+                  </button>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+
+     
+        <div className="lg:col-span-4 space-y-5">
+          {posts.slice(7, 13).map((post, index) => (
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="flex gap-4 pb-5 border-b border-gray-200 cursor-pointer"
+            >
+              <img
+                src={getImageUrl(post, 150, 100)}
+                alt={post.title}
+                className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+              />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-tight line-clamp-2">
+                  {post.title}
+                </h3>
+                <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                  {post.body.substring(0, 80)}...
+                </p>
+                <p className="text-xs text-gray-500">
+                  {getCategory(post, index)} | {getPostDate(post)}
+                </p>
+              </div>
+           
+              <button
+                onClick={(e) => toggleLike(e, post)}
+                className="p-1 hover:scale-110 transition-transform self-start"
+              >
+                <img 
+                  src={isLiked(post.id) ? heart_active : heart} 
+                  alt="like" 
+                  className="w-5 h-5"
+                />
+              </button>
+            </article>
+          ))}
+        </div>
+
+
+        <div className="lg:col-span-4">
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-gray-900">{t('home.latest_news')}</h2>
+          </div>
+
+          <div className="space-y-4">
+            {rightColumnPosts.map((post, index) => (
+              <article 
+                key={post.id} 
+                onClick={() => handlePostClick(post.id)}
+                className="pb-4 border-b border-gray-200 cursor-pointer flex items-start gap-2"
+              >
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-snug">
+                    {post.title}
+                  </h3>
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    {index % 3 === 0 && (
+                      <span className="flex items-center gap-1 text-blue-600 font-medium">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                        </svg>
+                        {getCategory(post, index)}
+                      </span>
+                    )}
+                    {index % 3 === 1 && (
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                          />
+                        </svg>
+                        {getCategory(post, index)}
+                      </span>
+                    )}
+                    <span className="ml-auto">{getPostDate(post)}</span>
+                  </div>
+                </div>
+                {/* Heart Button */}
+                <button
+                  onClick={(e) => toggleLike(e, post)}
+                  className="p-1 hover:scale-110 transition-transform"
+                >
+                  <img 
+                    src={isLiked(post.id) ? heart_active : heart} 
+                    alt="like" 
+                    className="w-5 h-5"
+                  />
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+
+ 
+      <section className="mb-10">
+        <div className="flex items-center gap-2 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">{t('home.current posts')}</h2>
+          <svg className="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dolzarbPosts.map((post) => (
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"
+            >
+              <img
+                src={getImageUrl(post, 400, 250)}
+                alt={post.title}
+                className="w-full h-48 object-cover"
+              />
+              {/* Heart Button */}
+              <button
+                onClick={(e) => toggleLike(e, post)}
+                className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+              >
+                <img 
+                  src={isLiked(post.id) ? heart_active : heart} 
+                  alt="like" 
+                  className="w-5 h-5"
+                />
+              </button>
+              <div className="p-4">
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {getPostDate(post)}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors leading-tight line-clamp-3">
+                  {post.title}
+                </h3>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+
+      <section className="mb-10">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">{t('home.articles')}</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {maqolalarPosts.map((post, index) => (
+            <article 
+              key={post.id} 
+              onClick={() => handlePostClick(post.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"
+            >
+              <div className="relative">
+                <img
+                  src={getImageUrl(post, 300, 200)}
+                  alt={post.title}
+                  className="w-full h-40 object-cover"
+                />
+                {/* Heart Button */}
+                <button
+                  onClick={(e) => toggleLike(e, post)}
+                  className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+                >
+                  <img 
+                    src={isLiked(post.id) ? heart_active : heart} 
+                    alt="like" 
+                    className="w-5 h-5"
+                  />
+                </button>
+              </div>
+              <div className="p-4">
+                <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors leading-tight mb-3 line-clamp-2">
+                  {post.title}
+                </h3>
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <span className="flex items-center gap-1 text-blue-600 font-medium">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <circle cx="10" cy="10" r="8"/>
+                    </svg>
+                    {getCategory(post, index)}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default HomePage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const DetailPage = () => {
+  const [post, setPost] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
+  const [recommendedPosts, setRecommendedPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const postId = window.location.pathname.split('/').pop() || '1';
+
+    Promise.all([
+      fetch(`https://dummyjson.com/posts/${postId}`).then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      }),
+      fetch('https://dummyjson.com/posts?limit=10').then(res => res.json())
+    ])
+      .then(([postData, relatedData]) => {
+        setPost(postData);
+        setRelatedPosts(relatedData.posts.slice(0, 3));
+        setRecommendedPosts(relatedData.posts.slice(3, 6));
+        setLoading(false);
+      })
+      .catch(() => {
+        setNotFound(true);
+        setLoading(false);
+        setTimeout(() => navigate('/404', { replace: true }), 1500);
+      });
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>Yuklanmoqda...</div>
+      </div>
+    );
+  }
+
+  if (notFound || !post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-200">
+        <div className="text-center">
+          <div className="mb-4">
+            <svg className="w-20 h-20 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Post topilmadi</h2>
+          <p className="text-sm text-gray-500">404</p>
+        </div>
+      </div>
+    );
+  }
+
+  const getImageUrl = (postId, w = 800, h = 500) =>
+    `https://picsum.photos/${w}/${h}?random=${postId}`;
+
+  const getCategory = () => {
+    const categories = ['O\'zbekiston', 'Jahon', 'Jamiyat', 'Avto', 'Jamiyat'];
+    return categories[post.id % categories.length];
+  };
+
+  const handleRelatedPostClick = (id) => {
+    window.location.href = `/detail/${id}`;
+  };
+
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <div className="lg:col-span-1">
+            <button
+              onClick={() => window.history.back()}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors sticky top-6"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          </div>
+
+          <div className="lg:col-span-7">
+            <article>
+              <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
+                <span className="font-semibold">{getCategory()}</span>
+                <span>|</span>
+                <span>16:22 / 14.11.2025</span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  10225
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                  18 daqiqa o'qiladi
+                </span>
+              </div>
+
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                {post.title}
+              </h1>
+
+              <p className="text-lg text-gray-800 font-medium mb-6 leading-relaxed">
+                {post.body}
+              </p>
+
+              <div className="mb-6">
+                <img
+                  src={getImageUrl(post.id)}
+                  alt={post.title}
+                  className="w-full rounded-lg"
+                />
+                <p className="text-xs text-gray-500 mt-2">Foto: Mudofaa vazirligi</p>
+              </div>
+
+              <div className="prose prose-lg max-w-none">
+                <p className="text-gray-800 leading-relaxed mb-4">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <div className="lg:col-span-4">
+            <div className="sticky top-6 space-y-6">
+
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Tavsiya etamiz</h3>
+                <div className="space-y-4">
+                  {relatedPosts.map((r, i) => (
+                    <article
+                      key={r.id}
+                      onClick={() => handleRelatedPostClick(r.id)}
+                      className="pb-4 border-b border-gray-200 last:border-0 cursor-pointer"
+                    >
+                      <h4 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-tight">
+                        {r.title}
+                      </h4>
+                      <div className="text-xs text-gray-500">
+                        {i === 0 ? 'Jahon' : i === 1 ? 'O\'zbekiston' : 'Avto'} |
+                        {18 - i}:{25 + i * 5} / 14.11.2025
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">So'nggi yangiliklar</h3>
+                <div className="space-y-4">
+                  {recommendedPosts.map((r, i) => (
+                    <article
+                      key={r.id}
+                      onClick={() => handleRelatedPostClick(r.id)}
+                      className="pb-4 border-b border-gray-200 last:border-0 cursor-pointer"
+                    >
+                      <h4 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-tight">
+                        {r.title}
+                      </h4>
+                      <div className="text-xs text-gray-500">
+                        Jamiyat | {11 + i}:{59 - i * 10} / 14.11.2025
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DetailPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import heart_active from "../assets/images/heart_active.svg";
+
+const Likes = () => {
+  const [likedNews, setLikedNews] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedLikes = localStorage.getItem('likedNews');
+    if (savedLikes) {
+      setLikedNews(JSON.parse(savedLikes));
+    }
+  }, []);
+
+  const removeLike = (newsId) => {
+    const updatedLikes = likedNews.filter(item => item.id !== newsId);
+    setLikedNews(updatedLikes);
+    localStorage.setItem('likedNews', JSON.stringify(updatedLikes));
+  };
+
+  const handlePostClick = (postId) => {
+    navigate(`/detail/${postId}`);
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Saralangan yangiliklar</h1>
+      
+      {likedNews.length === 0 ? (
+        <div className="text-center py-12">
+          <img src={heart_active} alt="heart" className="w-16 h-16 mx-auto mb-4 opacity-30" />
+          <p className="text-gray-500 text-lg">Hozircha saralangan yangiliklar yo'q</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {likedNews.map((news) => (
+            <article 
+              key={news.id} 
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="relative">
+                <img
+                  src={news.image}
+                  alt={news.title}
+                  onClick={() => handlePostClick(news.id)}
+                  className="w-full h-48 object-cover cursor-pointer"
+                />
+                <button
+                  onClick={() => removeLike(news.id)}
+                  className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+                >
+                  <img src={heart_active} alt="unlike" className="w-5 h-5" />
+                </button>
+              </div>
+              <div 
+                className="p-4 cursor-pointer"
+                onClick={() => handlePostClick(news.id)}
+              >
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                  <span className="text-blue-600 font-semibold">{news.category}</span>
+                  <span>|</span>
+                  <span>{news.date}</span>
+                </div>
+                <h3 className="text-base font-bold text-gray-900 hover:text-blue-600 transition-colors mb-2 leading-tight line-clamp-2">
+                  {news.title}
+                </h3>
+                <p className="text-sm text-gray-600 line-clamp-2">{news.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Likes;
+
+
+
+
+
+
+
+
+
+
+
+
+variant 
+// AUTO SAFE HOMEPAGE - API CHANGEPROOF VERSION
+
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import heart from "../assets/images/heart.svg";
+import heart_active from "../assets/images/heart_active.svg";
+
+const HomePage = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [likedPosts, setLikedPosts] = useState([]);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // UNIVERSAL FIELD GETTER — HAR QANDAY API FORMATIGA MOS
+  const getField = (obj, keys, fallback = "") => {
+    for (let key of keys) {
+      if (obj[key]) return obj[key];
+    }
+    return fallback;
+  };
+
+  // UNIVERSAL IMAGE
+  const getImageUrl = (post) => {
+    const possibleKeys = ["image", "img", "thumbnail", "photo", "picture", "url"];
+    const img = getField(post, possibleKeys, "");
+    return img || `https://picsum.photos/600/400?random=${post.id}`;
+  };
+
+  // UNIVERSAL TITLE
+  const getTitle = (post) => {
+    return getField(post, ["title", "name", "headline", "subject"], "No title");
+  };
+
+  // UNIVERSAL BODY
+  const getBody = (post) => {
+    return getField(post, ["body", "content", "description", "text"], "");
+  };
+
+  // UNIVERSAL CATEGORY
+  const getCategory = (post) => {
+    const cat = getField(post, ["category", "tag", "type"], "");
+    if (cat) return cat;
+
+    const randomCats = ["Sport", "Jamiyat", "Texnologiya", "Iqtisod", "Jahon"];
+    return randomCats[Math.floor(Math.random() * randomCats.length)];
+  };
+
+  // UNIVERSAL DATE
+  const getPostDate = (post) => {
+    const d = getField(post, ["date", "createdAt", "published", "timestamp"], "");
+    if (d) return new Date(d).toLocaleDateString("uz-UZ");
+
+    return `${Math.floor(Math.random() * 24)}:${String(Math.floor(Math.random() * 60)).padStart(2, "0")} / 2025`;
+  };
+
+  useEffect(() => {
+    fetch('https://dummyjson.com/posts?limit=50')
+      .then(res => res.json())
+      .then(data => {
+        const cleaned = data.posts?.map(post => ({
+          ...post,
+          title: getTitle(post),
+          body: getBody(post),
+          image: getImageUrl(post),
+          category: getCategory(post),
+          date: getPostDate(post)
+        }));
+        setPosts(cleaned || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+    const savedLikes = localStorage.getItem("likedNews");
+    if (savedLikes) setLikedPosts(JSON.parse(savedLikes));
+  }, []);
+
+  const isLiked = (id) => likedPosts.some(p => p.id === id);
+
+  const toggleLike = (e, post) => {
+    e.stopPropagation();
+    let updated;
+
+    if (isLiked(post.id)) {
+      updated = likedPosts.filter(item => item.id !== post.id);
+    } else {
+      updated = [...likedPosts, post];
+    }
+
+    setLikedPosts(updated);
+    localStorage.setItem("likedNews", JSON.stringify(updated));
+  };
+
+  const handlePostClick = (id) => navigate(`/detail/${id}`);
+
+  if (loading) return <div className="container py-8 text-center">Yuklanmoqda...</div>;
+
+  const mainPost = posts[0];
+  const leftPosts = posts.slice(1, 7);
+  const rightPosts = posts.slice(7, 20);
+  const dolzarb = posts.slice(20, 24);
+  const maqolalar = posts.slice(24, 32);
+
+  return (
+    <div className="container py-6">
+
+      {/* MAIN POST */}
+      {mainPost && (
+        <article
+          onClick={() => handlePostClick(mainPost.id)}
+          className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer relative mb-6"
+        >
+          <img src={mainPost.image} className="w-full h-64 object-cover" />
+
+          <button
+            onClick={(e) => toggleLike(e, mainPost)}
+            className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md"
+          >
+            <img
+              src={isLiked(mainPost.id) ? heart_active : heart}
+              className="w-6 h-6"
+            />
+          </button>
+
+          <div className="p-5">
+            <h2 className="text-xl font-bold mb-2">{mainPost.title}</h2>
+            <p className="text-gray-600">{mainPost.body}</p>
+          </div>
+        </article>
+      )}
+
+      {/* LEFT POSTS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {leftPosts.map(post => (
+          <article
+            key={post.id}
+            onClick={() => handlePostClick(post.id)}
+            className="cursor-pointer bg-white rounded-lg shadow-sm p-4 relative"
+          >
+            <img src={post.image} className="w-full h-40 object-cover rounded-md mb-3" />
+
+            <button
+              onClick={(e) => toggleLike(e, post)}
+              className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md"
+            >
+              <img src={isLiked(post.id) ? heart_active : heart} className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-bold text-gray-900 mb-2">{post.title}</h3>
+            <p className="text-sm text-gray-500">{post.category} | {post.date}</p>
+          </article>
+        ))}
+      </div>
+
+    </div>
+  );
+};
+
+export default HomePage;
